@@ -1,0 +1,22 @@
+{
+  "name": "elora-holmes",
+  "version": "0.0.1",
+  "description": "Sample app to locate lora device",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "ttn": "^2.3.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.10",
+    "@babel/register": "^7.12.10"
+  }
+}
