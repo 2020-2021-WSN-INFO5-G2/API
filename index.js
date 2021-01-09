@@ -89,21 +89,21 @@ const main = async function () {
   app.get('/devices/:device([a-z\-\_]+)', (req, res) => {
     if (frames[req.params.device] === undefined) {
       res.status(404)
-      res.send("Device not found")
+      res.send(JSON.stringify({"error":"Device not found"}))
     } else {
       res.status(200)
       res.contentType('json')
-      res.send(JSON.stringify(frames[req.params.device]))
+      res.send(JSON.stringify({"device":req.params.device,"frames":frames[req.params.device]}))
     }
   });
 
   app.post('/devices/:device([a-z\-\_]+)', (req, res) => {
     if (req.body.ledstatus === undefined) {
       res.status(400)
-      res.send("You must specify what to do with the LED")
+      res.send(JSON.stringify({"error":"You must specify what to do with the LED"}))
     } else if (frames[req.params.device] === undefined) {
       res.status(404)
-      res.send("Device not found")
+      res.send(JSON.stringify({"error":"Device not found"}))
     } else {
       client.send(req.params.device, Buffer.from([0x0f, req.body.ledstatus ? 0x01 : 0x00]))
       res.status(200)
@@ -112,16 +112,16 @@ const main = async function () {
   });
 
   app.post('/loracloud/singleframe', (req, res) => {
-    if (!req.body.gateways || !req.body.frames || !req.body.device || !req.header("Ocp-Apim-Subscription-Key")) {
+    if (!req.body.gateways  || req.body.gateways.length == 0  || !req.body.frames || req.body.frames.length == 0  || !req.body.device || !req.header("Ocp-Apim-Subscription-Key")) {
       res.status(400)
-      if (!req.body.gateways)
-        res.send("Error, Missing Gateways")
+      if (!req.body.gateways || req.body.gateways.length == 0 )
+      res.send(JSON.stringify({"error":"Missing Gateways"}))
+      if (!req.body.frames || req.body.frames.length == 0 )
+      res.send(JSON.stringify({"error":"Missing Frames"}))
       if (!req.body.frames)
-        res.send("Error, Missing Frames")
-      if (!req.body.frames)
-        res.send("Error, Missing Device name")
+      res.send(JSON.stringify({"error":"Missing Device ID"}))
       if (!req.header("Ocp-Apim-Subscription-Key"))
-        res.send("Error, Missing API Key")
+      res.send(JSON.stringify({"error":"Missing API Key"}))
     } else {
       const request = axios({
         method: 'post',
@@ -157,7 +157,7 @@ const main = async function () {
         ))
       })
         .catch(function (error) {
-          res.send(error)
+          res.send(JSON.stringify({"error":"Error while doing the request to LoraCloud API"}))
           console.log(error);
         })
     }
