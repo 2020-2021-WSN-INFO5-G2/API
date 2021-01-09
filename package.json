@@ -1,17 +1,27 @@
 {
-  "name": "elora-holmes",
+  "name": "elora-holmes-api",
   "version": "0.0.1",
-  "description": "Sample app to locate lora device",
+  "description": "API used for the ELora Holmes project",
   "main": "index.js",
   "scripts": {
+    "start": "node -r esm index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
+  "author": "Romain Pasdeloup, Myriam Lombard",
   "license": "ISC",
   "dependencies": {
+    "@babel/cli": "^7.12.10",
     "axios": "^0.21.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
+    "express": "^4.17.1",
     "ttn": "^2.3.3"
   },
   "devDependencies": {
