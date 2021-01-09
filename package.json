@@ -14,9 +14,13 @@
   },
   "author": "Romain Pasdeloup, Myriam Lombard",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git://https://github.com/2020-2021-WSN-INFO5-G2/API.git"
+  },
   "dependencies": {
     "@babel/cli": "^7.12.10",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -26,7 +30,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
     "@babel/register": "^7.12.10"
   }
 }
