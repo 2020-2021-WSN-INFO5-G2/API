@@ -1,0 +1,428 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "ELora Holmes",
+      "description": "API made for the project ELora Holmes by Romain Pasdeloup and Myriam Lombard, computer engineering students at Polytech Grenoble",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000/"
+      }
+    ],
+    "tags": [
+      {
+        "name": "devices",
+        "description": "Everything to get and send data about a device"
+      },
+      {
+        "name": "loracloud",
+        "description": "Request data from Loracloud API",
+        "externalDocs": {
+          "description": "Find out more",
+          "url": "https://www.loracloud.com/documentation/geolocation"
+        }
+      }
+    ],
+    "paths": {
+      "/devices/{deviceId}": {
+        "get": {
+          "tags": [
+            "devices"
+          ],
+          "summary": "Request last uplink data about a device",
+          "operationId": "getDeviceData",
+          "parameters": [
+            {
+              "name": "deviceId",
+              "in": "path",
+              "description": "ID of device to request data from",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Instruction has successfully be send to device",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeviceData"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Device not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "example": {
+                      "error": "Device not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "devices"
+          ],
+          "summary": "Send instruction to a device",
+          "operationId": "sendInstruction",
+          "parameters": [
+            {
+              "name": "deviceId",
+              "in": "path",
+              "description": "ID of device to send instruction to",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "description": "Instruction for the device LED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instruction"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Instruction has successfully be send to device",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "example": {
+                      "message": "Instruction has been send to device"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Missing or invalid LED status provided",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "example": {
+                      "error": "You must specify what to do with the LED"
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Device not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "example": {
+                      "error": "Device not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/loracloud/singleframe": {
+        "post": {
+          "tags": [
+            "loracloud"
+          ],
+          "summary": "Singleframe geolocation request to Loracloud API",
+          "operationId": "singleframe",
+          "requestBody": {
+            "description": "Instruction for the device LED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Geolocationquery"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Coordinates of the device",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Coordinates"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Missing or invalid body arguments",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "example": {
+                      "error": "Missing API Key"
+                    }
+                  }
+                }
+              }
+            },
+            "424": {
+              "description": "Error when querying Loracloud API",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "example": {
+                      "error": "Error while doing the request to LoraCloud API"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Instruction": {
+          "type": "object",
+          "properties": {
+            "ledstatus": {
+              "type": "boolean"
+            }
+          }
+        },
+        "DeviceData": {
+          "type": "object",
+          "properties": {
+            "device": {
+              "pattern": "[a-z\\-\\_]+",
+              "type": "string",
+              "example": "my-device"
+            },
+            "frames": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TTNFrame"
+              }
+            }
+          }
+        },
+        "TTNFrame": {
+          "type": "object",
+          "properties": {
+            "app_id": {
+              "pattern": "[a-z\\-\\_]+",
+              "type": "string",
+              "example": "my-app"
+            },
+            "dev_id": {
+              "pattern": "[a-z\\-\\_]+",
+              "type": "string",
+              "example": "my-device"
+            },
+            "hardware_serial": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
+            },
+            "counter": {
+              "type": "integer"
+            },
+            "payload_raw": {
+              "$ref": "#/components/schemas/Payload"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "payload": {
+              "$ref": "#/components/schemas/Payload"
+            },
+            "_msgid": {
+              "type": "string"
+            }
+          }
+        },
+        "Payload": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "example": "Buffer"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "Metadata": {
+          "type": "object",
+          "properties": {
+            "time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "frequency": {
+              "type": "number",
+              "format": "double"
+            },
+            "modulation": {
+              "type": "string"
+            },
+            "data_rate": {
+              "type": "string"
+            },
+            "airtime": {
+              "type": "integer"
+            },
+            "coding_rate": {
+              "type": "string"
+            },
+            "gateways": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Gateway"
+              }
+            }
+          }
+        },
+        "Frame": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number",
+                "format": "float"
+              },
+              {
+                "type": "number",
+                "format": "float"
+              }
+            ]
+          },
+          "example": [
+            "0000123456789a00",
+            0,
+            256477,
+            -100,
+            17.7
+          ]
+        },
+        "Gateway": {
+          "type": "object",
+          "properties": {
+            "gtw_id": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "integer"
+            },
+            "time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "antenna": {
+              "type": "integer"
+            },
+            "channel": {
+              "type": "integer"
+            },
+            "rssi": {
+              "type": "integer"
+            },
+            "snr": {
+              "type": "integer"
+            },
+            "rf_chain": {
+              "type": "integer"
+            },
+            "latitude": {
+              "type": "number",
+              "format": "double"
+            },
+            "longitude": {
+              "type": "number",
+              "format": "double"
+            },
+            "altitude": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        },
+        "Geolocationquery": {
+          "type": "object",
+          "properties": {
+            "gateways": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Gateway"
+              }
+            },
+            "frames": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Frame"
+              }
+            },
+            "Ocp-Apim-Subscription-Key": {
+              "type": "string"
+            }
+          }
+        },
+        "Coordinates": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "pattern": "[a-z\\-\\_]+",
+              "type": "string",
+              "example": "my-device"
+            },
+            "coordinates": {
+              "type": "object",
+              "properties": {
+                "longitude": {
+                  "type": "number",
+                  "format": "double"
+                },
+                "latitude": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }

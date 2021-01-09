@@ -6,8 +6,11 @@ import bodyParser from "body-parser";
 import axios from 'axios';
 
 dotenv.config();
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
 var app = express();
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.disable('x-powered-by')
 app.use(cors());
 app.use(bodyParser.json());
@@ -80,11 +83,9 @@ let frames = {
 
 const main = async function () {
   const client = await data(appID, accessKey)
-
-  app.get('/', function (req, res) {
-    res.send('hello world');
-
-  });
+  app.get('/', (req, res) => {
+    res.redirect('/api-docs')
+  })
 
   app.get('/devices/:device([a-z\-\_]+)', (req, res) => {
     if (frames[req.params.device] === undefined) {
@@ -107,7 +108,7 @@ const main = async function () {
     } else {
       client.send(req.params.device, Buffer.from([0x0f, req.body.ledstatus ? 0x01 : 0x00]))
       res.status(200)
-      res.send("Instruction send to device")
+      res.send(JSON.stringify({"message":"Instruction has been send to device"}))
     }
   });
 
@@ -157,6 +158,8 @@ const main = async function () {
         ))
       })
         .catch(function (error) {
+          res.status(424)
+          res.contentType('json')
           res.send(JSON.stringify({"error":"Error while doing the request to LoraCloud API"}))
           console.log(error);
         })

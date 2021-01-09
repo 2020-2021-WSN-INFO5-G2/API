@@ -26,6 +26,7 @@
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
+    "swagger-ui-express": "^4.1.6",
     "ttn": "^2.3.3"
   },
   "devDependencies": {
