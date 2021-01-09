@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from "cors";
 import bodyParser from "body-parser";
+import axios from 'axios';
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ const accessKey = process.env.ACCESS_KEY;
 const port = process.env.PORT || 3000;
 
 let frames = {
-  "devCartan": {
+  "devCartan": [{
     "app_id": "explorer-sherlock",
     "dev_id": "devCartan",
     "hardware_serial": "00FF3E80F4AE3F52",
@@ -73,7 +74,7 @@ let frames = {
       "data": [19, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     "_msgid": "4e8cc0ac.df478"
-  }
+  }]
 };
 
 
@@ -109,6 +110,58 @@ const main = async function () {
       res.send("Instruction send to device")
     }
   });
+
+  app.post('/loracloud/singleframe', (req, res) => {
+    if (!req.body.gateways || !req.body.frames || !req.body.device || !req.header("Ocp-Apim-Subscription-Key")) {
+      res.status(400)
+      if (!req.body.gateways)
+        res.send("Error, Missing Gateways")
+      if (!req.body.frames)
+        res.send("Error, Missing Frames")
+      if (!req.body.frames)
+        res.send("Error, Missing Device name")
+      if (!req.header("Ocp-Apim-Subscription-Key"))
+        res.send("Error, Missing API Key")
+    } else {
+      const request = axios({
+        method: 'post',
+        url: 'https://gls.loracloud.com/api/v3/solve/singleframe',
+        headers: {
+          'Accept': 'application/json',
+          'Ocp-Apim-Subscription-Key': req.header("Ocp-Apim-Subscription-Key")
+        },
+        data: {
+          gateways: req.body.gateways,
+          frame: req.body.frames,
+          params: {
+            "locAlgType": "RSSI_ALG",  // "TDOA_ALG" or "RSSI_ALG"
+            "doRssiTdoaCombine": true
+          }
+        }
+      });
+
+      request.then(function (response) {
+        // handle success
+        //console.log(response);
+        console.log(response.data)
+        res.status(200)
+        res.contentType('json')
+
+        res.send(JSON.stringify({
+          "name": req.body.device,
+          "coordinates": {
+            "longitude": response.data.result.locationEst.longitude,
+            "latitude": response.data.result.locationEst.latitude
+          }
+        }
+        ))
+      })
+        .catch(function (error) {
+          res.send(error)
+          console.log(error);
+        })
+    }
+  })
 
   client
     .on("uplink", function (devID, payload) {
