@@ -16,7 +16,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git://https://github.com/2020-2021-WSN-INFO5-G2/API.git"
+    "url": "https://github.com/2020-2021-WSN-INFO5-G2/API.git"
   },
   "dependencies": {
     "@babel/cli": "^7.12.10",
