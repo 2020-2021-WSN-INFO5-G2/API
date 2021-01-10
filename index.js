@@ -19,9 +19,9 @@ const accessKey = process.env.ACCESS_KEY;
 const port = process.env.PORT || 3000;
 
 let frames = {
-  "devCartan": [{
+  "fake-device": [{
     "app_id": "explorer-sherlock",
-    "dev_id": "devCartan",
+    "dev_id": "fake-device",
     "hardware_serial": "00FF3E80F4AE3F52",
     "port": 4,
     "counter": 2,
